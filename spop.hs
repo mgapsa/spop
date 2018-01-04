@@ -1,4 +1,6 @@
 module Spop where
+    import Model
+    import Gui
     import System.Directory
     import System.IO.Error
     import Control.Exception
@@ -14,8 +16,10 @@ module Spop where
       if (fileOK)
         then do
           pls <- readFile fileName
+          let board = (read pls) :: Board 
           putStrLn pls
           putStrLn "ELO"
+          drawBoard board
         else do
           putStrLn "Nie znaleziono podanego pliku."
           askForFile
