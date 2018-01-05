@@ -15,9 +15,13 @@ module Spop where
       fileOK <- doesFileExist fileName
       if (fileOK)
         then do
-          pls <- readFile fileName
-          let board = (read pls) :: Board 
-          putStrLn pls
+          myData <- readFile fileName
+          putStrLn myData
+          let ls = lines myData
+          let rows = read (ls !! 0) :: [Int]
+          let cols = read (ls !! 1) :: [Int]
+          let houses = read (ls !! 2) :: [(Int, Int)]
+          let board = Board rows cols houses
           putStrLn "ELO"
           drawBoard board
         else do
