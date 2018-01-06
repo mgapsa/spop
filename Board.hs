@@ -34,3 +34,13 @@ module Board where
   isHouse (h:hs) position
     | h == position = House
     | otherwise = isHouse hs position
+
+  getFieldTypeAt [] _ = Empty
+  getFieldTypeAt (m:map) (x, y)
+    | y > 0 = getFieldTypeAt map (x,y-1)
+    | otherwise = getFieldTypeInRowAt m x
+
+  getFieldTypeInRowAt [] _ = Empty
+  getFieldTypeInRowAt (e:elem) x
+    | x > 0 = getFieldTypeInRowAt elem (x-1)
+    | otherwise = e
