@@ -1,17 +1,19 @@
 module BoardGUI where
   import Board
 
-  drawBoard :: Board -> IO ()
-  drawBoard board = do
-    putStrLn "DEBUG: START drawBoard"
-    drawBoard' board (0,0)
-    drawBoard'' board (0,0)
-    putStrLn "DEBUG: END drawBoard"
+  fieldTypeToString :: FieldType -> String
+  fieldTypeToString House = "H"
+  fieldTypeToString Gas = "G"
+  fieldTypeToString Empty = "-"
 
-  drawBoard' :: Board -> Position -> IO ()
-  drawBoard' board pos = do putStrLn "A"
+  drawMap :: Map -> IO ()
+  drawMap [] = putStr "\n"
+  drawMap (m:map) = do
+    drawRow m
+    drawMap map
 
-  drawBoard'' (Board r c ps) pos | elem pos ps = do putStrLn "A"
-                                | otherwise = do putStrLn "B"
-
-  drawBoard''' (Board rows cols poss) = show rows
+  drawRow :: [FieldType] -> IO ()
+  drawRow [] = putStr "\n"
+  drawRow (e:elem) = do
+    putStr (fieldTypeToString e)
+    drawRow elem
