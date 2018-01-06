@@ -1,6 +1,7 @@
 module Spop where
   import Board
   import BoardGUI
+  import Solver
 
   import System.Directory
   import System.IO.Error
@@ -34,10 +35,11 @@ module Spop where
         putStrLn "Wczytana plansza:"
         drawMap map
 
-        -- solve
+        putStrLn "Rozwiazuje zadanie:"
+        let solvedMap = solve map board
 
         putStrLn "Rozwiazana plansza:"
-        drawMap map
+        drawMap solvedMap
 
         -- save output
       else do
