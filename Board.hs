@@ -1,5 +1,5 @@
 module Board where
-  -- Point = (Row, Column)
+  -- Point = (Column, Row)
   type Point = (Int, Int)
 
   data Board = Board {rows::[Int],
@@ -49,18 +49,18 @@ module Board where
   setMap map (r,c) field rows cols = newMap where
     xSize = length cols
     ySize = length rows
-    newMap = setRow map 0 (xSize, ySize) (r, c) field
+    newMap = setRow map 0 (xSize, ySize) (c , r) field
 
   setRow :: Map -> Int -> Point -> Point -> FieldType -> Map
-  setRow map rowIdx (xSize, ySize) (r, c) field
-    | rowIdx < ySize = row : setRow map (rowIdx+1) (xSize, ySize) (r, c) field
+  setRow map rowIdx (xSize, ySize) (c , r) field
+    | rowIdx < ySize = row : setRow map (rowIdx+1) (xSize, ySize) (c , r) field
     | otherwise = [[]]
     where
-      row = setElement map rowIdx 0 (xSize, ySize) (r, c) field
+      row = setElement map rowIdx 0 (xSize, ySize) (c , r) field
 
   setElement :: Map -> Int -> Int -> Point -> Point -> FieldType -> [FieldType]
-  setElement map rowIdx colIdx (xSize, ySize) (r, c) field
-    | colIdx < xSize = element : setElement map rowIdx (colIdx+1) (xSize, ySize) (r, c) field
+  setElement map rowIdx colIdx (xSize, ySize) (c , r) field
+    | colIdx < xSize = element : setElement map rowIdx (colIdx+1) (xSize, ySize) (c , r) field
     | otherwise = []
     where
       element | rowIdx == r && colIdx == c = field
