@@ -4,7 +4,8 @@ module BoardGUI where
   fieldTypeToString :: FieldType -> String
   fieldTypeToString House = "H"
   fieldTypeToString Gas = "G"
-  fieldTypeToString Empty = "-"
+  fieldTypeToString Empty = "X"
+  fieldTypeToString None = "-"
 
   drawMap :: Map -> IO ()
   drawMap [] = putStr "\n"

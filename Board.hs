@@ -6,7 +6,7 @@ module Board where
                       cols::[Int],
                       houses::[Point]} deriving (Show, Read)
 
-  data FieldType = Empty | House | Gas deriving Eq
+  data FieldType = None | Empty | House | Gas deriving Eq
   type Map = [[FieldType]]
 
   getMap :: Board -> Map
@@ -30,38 +30,42 @@ module Board where
       house = isHouse houses (rowIdx,colIdx)
 
   isHouse :: [Point] -> Point -> FieldType
-  isHouse [] _ = Empty
-  isHouse (h:hs) position
-    | h == position = House
-    | otherwise = isHouse hs position
+  isHouse [] _ = None
+  isHouse (h:hs) housePosition
+    | h == housePosition = House
+    | otherwise = isHouse hs housePosition
 
   getFieldTypeAt :: Map -> Point -> FieldType
-  getFieldTypeAt [] _ = Empty
-  getFieldTypeAt map (x, y) = elem where
-    row = map !! y
-    elem = row !! x
+  getFieldTypeAt [] _ = None
+  getFieldTypeAt map (colIdx, rowIdx)
+    | rowIdx < 0 || rowIdx >= rowSize || colIdx < 0 || colIdx >= colSize = None
+    | otherwise = (map !! rowIdx) !! colIdx
+    where
+      rowSize = length map
+      colSize = length (map !! 0)
 
 
   putFieldAt :: Map -> Point -> FieldType -> [Int] -> [Int] -> Map
-  putFieldAt map (x, y) field rows cols = setMap map (x, y) field rows cols
+  putFieldAt map (dstColIdx,dstRowIdx) field rows cols
+    = setMap map (dstColIdx,dstRowIdx) field rows cols
 
   setMap :: Map -> Point -> FieldType -> [Int] -> [Int] -> Map
-  setMap map (r,c) field rows cols = newMap where
-    xSize = length cols
-    ySize = length rows
-    newMap = setRow map 0 (xSize, ySize) (c , r) field
+  setMap map (dstColIdx,dstRowIdx) field rows cols = newMap where
+    colSize = length cols
+    rowSize = length rows
+    newMap = setRow map 0 (colSize,rowSize) (dstColIdx,dstRowIdx) field
 
   setRow :: Map -> Int -> Point -> Point -> FieldType -> Map
-  setRow map rowIdx (xSize, ySize) (c , r) field
-    | rowIdx < ySize = row : setRow map (rowIdx+1) (xSize, ySize) (c , r) field
+  setRow map rowIdx (colSize,rowSize) (dstColIdx,dstRowIdx) field
+    | rowIdx < rowSize = row : setRow map (rowIdx+1) (colSize,rowSize) (dstColIdx,dstRowIdx) field
     | otherwise = [[]]
     where
-      row = setElement map rowIdx 0 (xSize, ySize) (c , r) field
+      row = setElement map 0 rowIdx (colSize,rowSize) (dstColIdx,dstRowIdx) field
 
   setElement :: Map -> Int -> Int -> Point -> Point -> FieldType -> [FieldType]
-  setElement map rowIdx colIdx (xSize, ySize) (c , r) field
-    | colIdx < xSize = element : setElement map rowIdx (colIdx+1) (xSize, ySize) (c , r) field
+  setElement map colIdx rowIdx (colSize, rowSize) (dstColIdx,dstRowIdx) field
+    | colIdx < colSize = element : setElement map (colIdx+1) rowIdx (colSize,rowSize) (dstColIdx,dstRowIdx) field
     | otherwise = []
     where
-      element | rowIdx == r && colIdx == c = field
+      element | rowIdx == dstRowIdx && colIdx == dstColIdx = field
               | otherwise = (map !! rowIdx) !! colIdx
