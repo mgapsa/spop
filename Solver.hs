@@ -5,15 +5,7 @@ module Solver where
   solve board = solvedBoard where
     board1 = filterDistantFields board (0,0)
     board2 = runHeuristics board1
-    solvedBoard = board2
-    r = rows board
-    c = cols board
-    h = houses board
-
-  runHeuristics :: Board -> Board
-  runHeuristics board = finalBoard where
-    board1 = filterEmptyRowsColumns board (0,0)
-    finalBoard = board1
+    solvedBoard = findSolution board2
 
   -- --dodac sprawdzanie w jednej linii i jakies returny jak slepy zaulek
   -- putGasNextToHouse :: MapType -> Point -> [Int] -> [Int] -> MapType
@@ -40,27 +32,56 @@ module Solver where
                     where sb = runHeuristics b
                           sn = nextEmpty sb (-1)
   findSolutionImpl :: Board -> Int -> Board                        
-  findSolutionImpl b n | 1==1 = result_mark
-                       | 1==1 = bC
-                       | otherwise         = if (mapa bC') == mapa (error_board)
-                                             then result_mark
-                                             else bC'
+  findSolutionImpl b n | isBoardWithError bC = result_mark
+                       | isBoardComplete bC  = bC
+                       | otherwise           = if (mapa bC') == mapa (error_board)
+                                               then result_mark
+                                               else bC'
                        where bC = runHeuristics (putFieldAt b nextPoint Gas)
-                             bC' = if nextPointCExists then (findSolutionImpl bC nextPointAsNumber) else error_board 
+                             bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber 0) else error_board 
                              bM = runHeuristics (putFieldAt b nextPoint None)
-                             bM' = if nextPointMExists then (findSolutionImpl bM nextPointAsNumber) else error_board
+                             bM' = if nextPointMExists then (findSolutionImpl' bM nextPointAsNumber 0) else error_board
                              nextPoint = nextEmpty b n
                              nextPointAsNumber = xy2n b nextPoint
                              nextPointCExists = nextEmpty bC nextPointAsNumber /= (-1,-1)
                              nextPointMExists = nextEmpty bM nextPointAsNumber /= (-1,-1)
-                             result_mark = if board_problem bM
+                             result_mark = if isBoardWithError bM
                                            then error_board
-                                           else if board_complete bM
+                                           else if isBoardComplete bM
                                             then bM
                                             else bM'
                              error_board = b { mapa = [[]] }
+
+  findSolutionImpl' :: Board -> Int -> Int -> Board                        
+  findSolutionImpl' b n i | i == 6 = b
+                          | isBoardWithError bC = result_mark
+                          | isBoardComplete bC  = bC
+                          | otherwise           = if (mapa bC') == mapa (error_board)
+                                                then result_mark
+                                                else bC'
+                      where bC = runHeuristics (putFieldAt b nextPoint Gas)
+                            bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber (i+1)) else error_board 
+                            bM = runHeuristics (putFieldAt b nextPoint None)
+                            bM' = if nextPointMExists then (findSolutionImpl' bM nextPointAsNumber (i+1)) else error_board
+                            nextPoint = nextEmpty b n
+                            nextPointAsNumber = xy2n b nextPoint
+                            nextPointCExists = nextEmpty bC nextPointAsNumber /= (-1,-1)
+                            nextPointMExists = nextEmpty bM nextPointAsNumber /= (-1,-1)
+                            result_mark = if isBoardWithError bM
+                                          then error_board
+                                          else if isBoardComplete bM
+                                            then bM
+                                            else bM'
+                            error_board = b { mapa = [[]] }
+
+
   
-  
+  runHeuristics :: Board -> Board
+  runHeuristics board = finalBoard where
+    board1 = filterEmptyRowsColumns board (0,0)
+    board2 = fillMatchingFields board1 (0,0)
+    finalBoard = board2
+
   filterDistantFields :: Board -> Point -> Board
   filterDistantFields board (colIdx,rowIdx)
     | rowIdx < length r && colIdx < length c = finalBoard
@@ -79,3 +100,21 @@ module Solver where
             || getFieldTypeAt board (colIdx+1,rowIdx) == House
             || getFieldTypeAt board (colIdx,rowIdx+1) == House) == False = Empty
         | otherwise = (m !! rowIdx) !! colIdx
+
+  fillMatchingFields :: Board -> Point -> Board
+  fillMatchingFields board (colIdx,rowIdx)
+    | rowIdx < length r = updateRow
+    -- | colIdx < length c = updateCol
+    | otherwise = board
+    where
+      r = rows board
+      c = cols board
+      empty_in_this_row = countSthInRow board (colIdx,rowIdx) None
+      -- if empty_in_this_row == (r !! rowIdx) then
+      --   let updatedRowBoard = board
+      -- else
+      --   let updatedRowBoard = board
+      updateRow = fillMatchingFields board (colIdx,rowIdx+1)
+
+  -- pushGasInRow :: Board -> Int -> Board
+  -- pushGasInRow board rowIdx =

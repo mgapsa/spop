@@ -77,8 +77,8 @@ module Board where
   -- Zwraca indeks kolejnego pustego pola (począwszy od n+1)
   nextEmpty :: Board -> Int -> Point
   nextEmpty b n | n >= (length(rows b) * length(cols b) - 1) = (-1, -1) -- zwróć (-1, -1)) jeśli nie znaleziono żadnego pustego pola
-                 | isEmptyAt b (n2xy b (n+1))   = n2xy b (n+1)
-                 | otherwise                    = nextEmpty b (n+1)
+                | isEmptyAt b (n2xy b (n+1))   = n2xy b (n+1)
+                | otherwise                    = nextEmpty b (n+1)
 
 
   -- Zwraca współrzędne pola o podanym indeksie linowym
@@ -90,4 +90,46 @@ module Board where
 
 
   isEmptyAt :: Board -> Point -> Bool
-  isEmptyAt board point = getFieldTypeAt board point == Empty
+  isEmptyAt board point = getFieldTypeAt board point == None
+
+
+  countSthInRow :: Board -> Point -> FieldType -> Int
+  countSthInRow board (colIdx,rowIdx) filed
+    | colIdx < length (m !! 0 ) = val + countSthInRow board (colIdx+1,rowIdx) filed
+    | otherwise = 0
+    where
+      m = mapa board
+      val | getFieldTypeAt board (colIdx,rowIdx) == filed = 1
+          | otherwise = 0
+
+  countSthInCol :: Board -> Point -> FieldType -> Int
+  countSthInCol board (colIdx,rowIdx) field
+    | rowIdx < length m = val + countSthInCol board (colIdx,rowIdx+1) field
+    | otherwise = 0
+    where
+      m = mapa board
+      val | getFieldTypeAt board (colIdx,rowIdx) == field = 1
+          | otherwise = 0
+
+  areRowsComplete :: Board -> Int -> Bool
+  areRowsComplete board n | n == length(rows board) = True
+                          | otherwise = (countSthInRow board (0, n) Gas) == ((rows board) !! n) && areRowsComplete board (n+1)
+  
+  areColsComplete :: Board -> Int -> Bool
+  areColsComplete board n | n == length(cols board) = True
+                          | otherwise = (countSthInCol board (n, 0) Gas) == ((cols board) !! n) && areColsComplete board (n+1)
+  
+  isBoardComplete :: Board -> Bool
+  isBoardComplete board = (areRowsComplete board 0) && (areColsComplete board 0)
+
+  areRowsWithError :: Board -> Int -> Bool
+  areRowsWithError board n | n == length(rows board) = False
+                           | otherwise = (countSthInRow board (0, n) Gas) > ((rows board) !! n) || areRowsWithError board (n+1)
+  
+  areColsWithError :: Board -> Int -> Bool
+  areColsWithError board n | n == length(cols board) = False
+                           | otherwise = (countSthInCol board (n, 0) Gas) > ((cols board) !! n) || areColsWithError board (n+1)
+
+  isBoardWithError :: Board -> Bool
+  isBoardWithError board = (areRowsWithError board 0) 
+  -- || (areColsWithError board 0)
