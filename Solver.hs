@@ -10,11 +10,6 @@ module Solver where
     c = cols board
     h = houses board
 
-  runHeuristics :: Board -> Board
-  runHeuristics board = finalBoard where
-    board1 = filterEmptyRowsColumns board (0,0)
-    finalBoard = board1
-
   -- --dodac sprawdzanie w jednej linii i jakies returny jak slepy zaulek
   -- putGasNextToHouse :: MapType -> Point -> [Int] -> [Int] -> MapType
   -- putGasNextToHouse map (c , r) rows cols = putFieldAt map (c , r) Gas
@@ -34,6 +29,12 @@ module Solver where
         | ((r !! rowIdx) == 0 || (c !! colIdx) == 0) = Empty
         | otherwise = (m !! rowIdx) !! colIdx
 
+  runHeuristics :: Board -> Board
+  runHeuristics board = finalBoard where
+    board1 = filterEmptyRowsColumns board (0,0)
+    board2 = fillMatchingFields board1 (0,0)
+    finalBoard = board2
+
   filterDistantFields :: Board -> Point -> Board
   filterDistantFields board (colIdx,rowIdx)
     | rowIdx < length r && colIdx < length c = finalBoard
@@ -52,3 +53,21 @@ module Solver where
             || getFieldTypeAt board (colIdx+1,rowIdx) == House
             || getFieldTypeAt board (colIdx,rowIdx+1) == House) == False = Empty
         | otherwise = (m !! rowIdx) !! colIdx
+
+  fillMatchingFields :: Board -> Point -> Board
+  fillMatchingFields board (colIdx,rowIdx)
+    | rowIdx < length r = updateRow
+    -- | colIdx < length c = updateCol
+    | otherwise = board
+    where
+      r = rows board
+      c = cols board
+      empty_in_this_row = countSthInRow board (colIdx,rowIdx) None
+      -- if empty_in_this_row == (r !! rowIdx) then
+      --   let updatedRowBoard = board
+      -- else
+      --   let updatedRowBoard = board
+      updateRow = fillMatchingFields board (colIdx,rowIdx+1)
+
+  -- pushGasInRow :: Board -> Int -> Board
+  -- pushGasInRow board rowIdx =

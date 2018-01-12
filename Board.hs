@@ -73,3 +73,21 @@ module Board where
     where
       element | rowIdx == dstRowIdx && colIdx == dstColIdx = field
               | otherwise = (mapa !! rowIdx) !! colIdx
+
+  countSthInRow :: Board -> Point -> FieldType -> Int
+  countSthInRow board (colIdx,rowIdx) filed
+    | colIdx < length (m !! 0 ) = val + countSthInRow board (colIdx+1,rowIdx) filed
+    | otherwise = 0
+    where
+      m = mapa board
+      val | getFieldTypeAt board (colIdx,rowIdx) == filed = 1
+          | otherwise = 0
+
+  countSthInCol :: Board -> Point -> FieldType -> Int
+  countSthInCol board (colIdx,rowIdx) field
+    | rowIdx < length m = val + countSthInCol board (colIdx,rowIdx+1) field
+    | otherwise = 0
+    where
+      m = mapa board
+      val | getFieldTypeAt board (colIdx,rowIdx) == field = 1
+          | otherwise = 0
