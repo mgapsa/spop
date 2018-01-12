@@ -14,7 +14,7 @@ module BoardGUI where
     putStr " "
     printElements (cols board)
     putStr "\n"
-    drawMapImpl map (cols board)
+    drawMapImpl map (rows board)
 
   drawMapImpl :: Map -> [Int] -> IO ()
   drawMapImpl [] _ = putStr "\n"
