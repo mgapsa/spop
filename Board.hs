@@ -70,3 +70,21 @@ module Board where
     where
       element | rowIdx == dstRowIdx && colIdx == dstColIdx = field
               | otherwise = (mapa !! rowIdx) !! colIdx
+
+  -- Zwraca indeks kolejnego pustego pola (począwszy od n+1)
+  nextEmpty :: Board -> Int -> Point
+  nextEmpty b n | n >= (length(rows b) * length(cols b) - 1) = (-1, -1) -- zwróć (-1, -1)) jeśli nie znaleziono żadnego pustego pola
+                 | isEmptyAt b (n2xy b (n+1))   = n2xy b (n+1)
+                 | otherwise                    = nextEmpty b (n+1)
+
+
+  -- Zwraca współrzędne pola o podanym indeksie linowym
+  n2xy :: Board -> Int -> (Int, Int)
+  n2xy b n = ((mod n (length(cols b))), (div n (length(rows b))))
+  -- Zwraca indeks linowy pola o podanych współrzędnych
+  xy2n :: Board -> (Int, Int) -> Int
+  xy2n b (x, y) = y * length(cols b) + x
+
+
+  isEmptyAt :: Board -> Point -> Bool
+  isEmptyAt board point = getFieldTypeAt board point == Empty

@@ -55,3 +55,34 @@ module Solver where
   --           || getFieldTypeAt map (colIdx+1,rowIdx) == House
   --           || getFieldTypeAt map (colIdx,rowIdx+1) == House) == False = Empty
   --       | otherwise = (map !! rowIdx) !! colIdx
+
+
+
+  -- Przeszukuje wgłąb przestrzeń rozwiązań wstawiając w wolne pola zbiorniki
+findSolution :: Board -> Board
+findSolution b = if sn /= (-1, -1) then findSolutionImpl sb ((xy2n b sn)-1) else sb
+                  where sb = runHeuristics b
+                        sn = nextEmpty sb (-1)
+findSolutionImpl :: Board -> Int -> Board                        
+findSolutionImpl b n | board_problem bC  = result_mark
+                     | board_complete bC = bC
+                     | otherwise         = if (board bC') == board (error_board)
+                                           then result_mark
+                                           else bC'
+                     where bC = solve (place_cont b next_xy) --PUT GAS NA MIEJSCE DANE
+                           bC' = if next_n_C then (findSolutionImpl bC next_n) else error_board 
+                           bM = solve (update_board b next_xy mark)
+                           bM' = if next_n_M then (findSolutionImpl bM next_n) else error_board
+                           next_n = next_empty b n
+                           next_xy = n2xy b next_n
+                           next_n_C = next_empty bC next_n /= (-1,-1)
+                           next_n_M = next_empty bM next_n /= (-1,-1)
+                           result_mark = if board_problem bM
+                                         then error_board
+                                         else if board_complete bM
+                                          then bM
+                                          else bM'
+                           error_board = b { board = [[]] }
+
+
+board_problemI BOARDS_COMPLETE
