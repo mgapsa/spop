@@ -10,22 +10,22 @@ module Board where
                       cols::[Int],
                       houses::[Point]}
 
-  getMap :: [Int] -> [Int] -> [Point] -> MapType
-  getMap rows cols houses = mapa where
+  generateMap :: [Int] -> [Int] -> [Point] -> MapType
+  generateMap rows cols houses = mapa where
     xSize = length cols
     ySize = length rows
-    mapa = getRow houses 0 (xSize, ySize)
+    mapa = generateRow houses 0 (xSize, ySize)
 
-  getRow :: [Point] -> Int -> Point -> MapType
-  getRow houses rowIdx (xSize, ySize)
-    | rowIdx < ySize = row : getRow houses (rowIdx+1) (xSize, ySize)
+  generateRow :: [Point] -> Int -> Point -> MapType
+  generateRow houses rowIdx (xSize, ySize)
+    | rowIdx < ySize = row : generateRow houses (rowIdx+1) (xSize, ySize)
     | otherwise = [[]]
     where
-      row = getElement houses rowIdx 0 (xSize, ySize)
+      row = generateElement houses rowIdx 0 (xSize, ySize)
 
-  getElement :: [Point] -> Int -> Int -> Point -> [FieldType]
-  getElement houses rowIdx colIdx (xSize, ySize)
-    | colIdx < xSize = house : getElement houses rowIdx (colIdx+1) (xSize, ySize)
+  generateElement :: [Point] -> Int -> Int -> Point -> [FieldType]
+  generateElement houses rowIdx colIdx (xSize, ySize)
+    | colIdx < xSize = house : generateElement houses rowIdx (colIdx+1) (xSize, ySize)
     | otherwise = []
     where
       house = isHouse houses (rowIdx,colIdx)
@@ -45,10 +45,13 @@ module Board where
       rowSize = length m
       colSize = length (m !! 0)
 
-
-  putFieldAt :: Board -> Point -> FieldType -> [Int] -> [Int] -> Board
-  putFieldAt board (dstColIdx,dstRowIdx) field rows cols
-    = (Board (setMap (mapa board) (dstColIdx,dstRowIdx) field rows cols) rows cols (houses board))
+  putFieldAt :: Board -> Point -> FieldType -> Board
+  putFieldAt board (dstColIdx,dstRowIdx) field = updatedBoard where
+    updatedBoard = (Board m r c h)
+    m = setMap (mapa board) (dstColIdx,dstRowIdx) field r c
+    r = rows board
+    c = cols board
+    h = houses board
 
   setMap :: MapType -> Point -> FieldType -> [Int] -> [Int] -> MapType
   setMap mapa (dstColIdx,dstRowIdx) field rows cols = newBoard where

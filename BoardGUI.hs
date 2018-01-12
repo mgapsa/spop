@@ -8,20 +8,20 @@ module BoardGUI where
   fieldTypeToString Empty = "X"
   fieldTypeToString None = "-"
 
-  drawMap :: Board -> IO ()
-  drawMap board = do
+  drawBoard :: Board -> IO ()
+  drawBoard board = do
     putStr " "
     printElements (cols board)
     putStr "\n"
-    drawMapImpl (mapa board) (rows board)
+    drawBoardImpl (mapa board) (rows board)
 
-  drawMapImpl :: MapType -> [Int] -> IO ()
-  drawMapImpl [] _ = putStr "\n"
-  drawMapImpl _ [] = putStr "\n"
-  drawMapImpl (m:map) (c:col) = do
+  drawBoardImpl :: MapType -> [Int] -> IO ()
+  drawBoardImpl [] _ = putStr "\n"
+  drawBoardImpl _ [] = putStr "\n"
+  drawBoardImpl (m:map) (c:col) = do
     putStr [chr (c+48)]
     drawRow m
-    drawMapImpl map col
+    drawBoardImpl map col
 
   drawRow :: [FieldType] -> IO ()
   drawRow [] = putStr "\n"

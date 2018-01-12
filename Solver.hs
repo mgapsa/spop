@@ -3,55 +3,52 @@ module Solver where
 
   solve :: Board -> Board
   solve board = solvedBoard where
-    -- map1 = filterDistantFields (mapa board) (0,0) (rows board) (cols board)
-    -- updatedMap = runHeuristics map1 (rows board) (cols board) (houses board)
-    -- solvedMap = (Board updatedMap (rows board) (cols board) (houses board))
-    solvedBoard = board
+    board1 = filterDistantFields board (0,0)
+    board2 = runHeuristics board1
+    solvedBoard = board2
+    r = rows board
+    c = cols board
+    h = houses board
 
-  -- runHeuristics :: MapType -> [Int] -> [Int] -> [Point] -> MapType
-  -- runHeuristics map0 rows cols houses = finalMap where
-  --   map1 = filterEmptyRowsColumns map0 (0,0) rows cols
-  --   finalMap = map1
-
-  -- solveImpl :: MapType -> Point -> [Int] -> [Int] -> MapType
-  -- solveImpl map (c , r) rows cols
-  --   | r > (length rows -1) = map
-  --   | r < (length rows -1) && c > (length cols -1) = solveImpl map (0, r+1) rows cols
-  --   | (getFieldTypeAt map (c,r)) == House && c >= (length cols -1) = solveImpl (putGasNextToHouse map (c , r) rows cols) (0, r+1) rows cols
-  --   | (getFieldTypeAt map (c,r)) == House && r >= (length rows -1) && c >= (length cols -1) = putGasNextToHouse map (c , r) rows cols
-  --   | (getFieldTypeAt map (c,r)) == House = solveImpl (putGasNextToHouse map (c , r) rows cols) (c+1, r) rows cols
-  --   | r >= (length rows -1) && c >= (length cols -1) = map
-  --   | c >= (length cols -1) = solveImpl map (0, r+1) rows cols
-  --   | otherwise = solveImpl map (c+1, r) rows cols
+  runHeuristics :: Board -> Board
+  runHeuristics board = finalBoard where
+    board1 = filterEmptyRowsColumns board (0,0)
+    finalBoard = board1
 
   -- --dodac sprawdzanie w jednej linii i jakies returny jak slepy zaulek
   -- putGasNextToHouse :: MapType -> Point -> [Int] -> [Int] -> MapType
-  -- putGasNextToHouse map (c , r) rows cols = putFieldAt map (c , r) Gas rows cols
+  -- putGasNextToHouse map (c , r) rows cols = putFieldAt map (c , r) Gas
 
-  -- filterEmptyRowsColumns :: MapType -> Point -> [Int] -> [Int] -> MapType
-  -- filterEmptyRowsColumns map (colIdx, rowIdx) rows cols
-  --   | rowIdx < length rows && colIdx < length cols = finalMap
-  --   | rowIdx < length rows = filterEmptyRowsColumns map (0,rowIdx+1) rows cols
-  --   | otherwise = map
-  --   where
-  --     updatedMap = putFieldAt map (colIdx,rowIdx) field rows cols
-  --     finalMap = filterEmptyRowsColumns updatedMap (colIdx+1,rowIdx) rows cols
-  --     field
-  --       | ((rows !! rowIdx) == 0 || (cols !! colIdx) == 0) = Empty
-  --       | otherwise = (map !! rowIdx) !! colIdx
+  filterEmptyRowsColumns :: Board -> Point -> Board
+  filterEmptyRowsColumns board (colIdx, rowIdx)
+    | rowIdx < length r && colIdx < length c = finalBoard
+    | rowIdx < length r = filterEmptyRowsColumns board (0,rowIdx+1)
+    | otherwise = board
+    where
+      m = mapa board
+      r = rows board
+      c = cols board
+      updatedBoard = putFieldAt board (colIdx,rowIdx) field
+      finalBoard = filterEmptyRowsColumns updatedBoard (colIdx+1,rowIdx)
+      field
+        | ((r !! rowIdx) == 0 || (c !! colIdx) == 0) = Empty
+        | otherwise = (m !! rowIdx) !! colIdx
 
-  -- filterDistantFields :: MapType -> Point -> [Int] -> [Int] -> MapType
-  -- filterDistantFields map (colIdx,rowIdx) rows cols
-  --   | rowIdx < length rows && colIdx < length cols = finalMap
-  --   | rowIdx < length rows = filterDistantFields map (0,rowIdx+1) rows cols
-  --   | otherwise = map
-  --   where
-  --     updatedMap = putFieldAt map (colIdx,rowIdx) field rows cols
-  --     finalMap = filterDistantFields updatedMap (colIdx+1,rowIdx) rows cols
-  --     field
-  --       | getFieldTypeAt map (colIdx,rowIdx) == None
-  --         && (getFieldTypeAt map (colIdx,rowIdx-1) == House
-  --           || getFieldTypeAt map (colIdx-1,rowIdx) == House
-  --           || getFieldTypeAt map (colIdx+1,rowIdx) == House
-  --           || getFieldTypeAt map (colIdx,rowIdx+1) == House) == False = Empty
-  --       | otherwise = (map !! rowIdx) !! colIdx
+  filterDistantFields :: Board -> Point -> Board
+  filterDistantFields board (colIdx,rowIdx)
+    | rowIdx < length r && colIdx < length c = finalBoard
+    | rowIdx < length r = filterDistantFields board (0,rowIdx+1)
+    | otherwise = board
+    where
+      m = mapa board
+      r = rows board
+      c = cols board
+      updatedBoard = putFieldAt board (colIdx,rowIdx) field
+      finalBoard = filterDistantFields updatedBoard (colIdx+1,rowIdx)
+      field
+        | getFieldTypeAt board (colIdx,rowIdx) == None
+          && (getFieldTypeAt board (colIdx,rowIdx-1) == House
+            || getFieldTypeAt board (colIdx-1,rowIdx) == House
+            || getFieldTypeAt board (colIdx+1,rowIdx) == House
+            || getFieldTypeAt board (colIdx,rowIdx+1) == House) == False = Empty
+        | otherwise = (m !! rowIdx) !! colIdx
