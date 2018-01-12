@@ -30,16 +30,16 @@ module Spop where
         let cols = read (fileLine !! 1) :: [Int]
         let houses = read (fileLine !! 2) :: [(Int, Int)]
 
-        let board = Board rows cols houses
-        let map = getMap board
+        let map = getMap rows cols houses
+        let board = Board map rows cols houses
         putStrLn "Wczytana plansza:"
-        drawMap map board
+        drawMap board
 
         putStrLn "Rozwiazuje zadanie:"
-        let solvedMap = solve map board
+        let solvedBoard = solve board
 
         putStrLn "Rozwiazana plansza:"
-        drawMap solvedMap board
+        drawMap solvedBoard
 
         -- save output
       else do
