@@ -5,7 +5,8 @@ module Solver where
   solve board = solvedBoard where
     board1 = filterDistantFields board (0,0)
     board2 = runHeuristics board1
-    solvedBoard = findSolution board2
+    board3 = findSolution board2
+    solvedBoard = board2
 
   -- --dodac sprawdzanie w jednej linii i jakies returny jak slepy zaulek
   -- putGasNextToHouse :: MapType -> Point -> [Int] -> [Int] -> MapType
@@ -20,7 +21,8 @@ module Solver where
       m = mapa board
       r = rows board
       c = cols board
-      updatedBoard = putFieldAt board (colIdx,rowIdx) field
+      updatedBoard = if getFieldTypeAt board (colIdx,rowIdx) == None then putFieldAt board (colIdx,rowIdx) field
+                     else board
       finalBoard = filterEmptyRowsColumns updatedBoard (colIdx+1,rowIdx)
       field
         | ((r !! rowIdx) == 0 || (c !! colIdx) == 0) = Empty
@@ -31,14 +33,14 @@ module Solver where
   findSolution b = if sn /= (-1, -1) then findSolutionImpl sb ((xy2n b sn)-1) else sb
                     where sb = runHeuristics b
                           sn = nextEmpty sb (-1)
-  findSolutionImpl :: Board -> Int -> Board                        
+  findSolutionImpl :: Board -> Int -> Board
   findSolutionImpl b n | isBoardWithError bC = result_mark
                        | isBoardComplete bC  = bC
                        | otherwise           = if (mapa bC') == mapa (error_board)
                                                then result_mark
                                                else bC'
                        where bC = runHeuristics (putFieldAt b nextPoint Gas)
-                             bC' = if nextPointCExists then (findSolutionImpl bC nextPointAsNumber) else error_board 
+                             bC' = if nextPointCExists then (findSolutionImpl bC nextPointAsNumber) else error_board
                              bM = runHeuristics (putFieldAt b nextPoint None)
                              bM' = if nextPointMExists then (findSolutionImpl bM nextPointAsNumber) else error_board
                              nextPoint = nextEmpty b n
@@ -52,15 +54,15 @@ module Solver where
                                             else bM'
                              error_board = b { mapa = [[]] }
 
-  findSolutionImpl' :: Board -> Int -> Int -> Board                        
-  findSolutionImpl' b n i | i == 13 = b
+  findSolutionImpl' :: Board -> Int -> Int -> Board
+  findSolutionImpl' b n i | i == 0 = b
                           | isBoardWithError bC = result_mark
                           | isBoardComplete bC  = bC
                           | otherwise           = if (mapa bC') == mapa (error_board)
                                                 then result_mark
                                                 else bC'
                       where bC = runHeuristics (putFieldAt b nextPoint Gas)
-                            bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber (i+1)) else error_board 
+                            bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber (i+1)) else error_board
                             bM = runHeuristics (putFieldAt b nextPoint None)
                             bM' = if nextPointMExists then (findSolutionImpl' bM nextPointAsNumber (i+1)) else error_board
                             nextPoint = nextEmpty b n
@@ -74,13 +76,12 @@ module Solver where
                                             else bM'
                             error_board = b { mapa = [[]] }
 
-
-  
   runHeuristics :: Board -> Board
   runHeuristics board = finalBoard where
     board1 = filterEmptyRowsColumns board (0,0)
     board2 = fillMatchingFields board1 (0,0)
-    finalBoard = board2
+    finalBoard = if board == board2 then board2
+                 else runHeuristics board2
 
   filterDistantFields :: Board -> Point -> Board
   filterDistantFields board (colIdx,rowIdx)
@@ -146,19 +147,33 @@ module Solver where
 
   filterGasTankProximity :: Board -> Point -> Board
   filterGasTankProximity board (colIdx,rowIdx) = finalBoard where
-    boardNW = filterGasTankProximityImpl board (colIdx-1,rowIdx-1)
-    boardN = filterGasTankProximityImpl boardNW (colIdx,rowIdx-1)
-    boardNE = filterGasTankProximityImpl boardN (colIdx+1,rowIdx-1)
-    boardE = filterGasTankProximityImpl boardNE (colIdx+1,rowIdx)
-    boardSE = filterGasTankProximityImpl boardE (colIdx+1,rowIdx+1)
-    boardS = filterGasTankProximityImpl boardSE (colIdx,rowIdx+1)
-    boardSW = filterGasTankProximityImpl boardS (colIdx-1,rowIdx+1)
-    boardW = filterGasTankProximityImpl boardSW (colIdx-1,rowIdx)
-    finalBoard = boardW
+    r = decrementElementAtList (rows board) rowIdx
+    c = decrementElementAtList (cols board) colIdx
+    b = (Board (mapa board) r c (houses board))
+    boardNW = filterGasTankProximityImpl b (colIdx-1,rowIdx-1)
+    boardNX = filterGasTankProximityImpl boardNW (colIdx,rowIdx-1)
+    boardNE = filterGasTankProximityImpl boardNX (colIdx+1,rowIdx-1)
+    boardEX = filterGasTankProximityImpl boardNE (colIdx+1,rowIdx)
+    boardSE = filterGasTankProximityImpl boardEX (colIdx+1,rowIdx+1)
+    boardSX = filterGasTankProximityImpl boardSE (colIdx,rowIdx+1)
+    boardSW = filterGasTankProximityImpl boardSX (colIdx-1,rowIdx+1)
+    boardWX = filterGasTankProximityImpl boardSW (colIdx-1,rowIdx)
+    finalBoard = boardWX
+
+  decrementElementAtList :: [Int] -> Int -> [Int]
+  decrementElementAtList [] _ = []
+  decrementElementAtList (x:xs) idx
+    | idx > 0 = x : decrementElementAtList xs (idx-1)
+    | otherwise = (x-1) : xs
 
   filterGasTankProximityImpl :: Board -> Point -> Board
-  filterGasTankProximityImpl board (colIdx,rowIdx) = finalBoard where
-    isNone = (getFieldTypeAt board (colIdx,rowIdx) == None)
-    finalBoard = if isNone
-              then putFieldAt board (colIdx,rowIdx) Empty
-              else board
+  filterGasTankProximityImpl board (colIdx,rowIdx)
+    | colIdx >= 0 && rowIdx >= 0 && colIdx < length c && rowIdx < length r = finalBoard
+    | otherwise = board
+    where
+      c = cols board
+      r = rows board
+      isNone = (getFieldTypeAt board (colIdx,rowIdx) == None)
+      finalBoard = if isNone
+                   then putFieldAt board (colIdx,rowIdx) Empty
+                   else board

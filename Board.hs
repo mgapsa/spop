@@ -8,7 +8,7 @@ module Board where
   data Board = Board {mapa::MapType,
                       rows::[Int],
                       cols::[Int],
-                      houses::[Point]}
+                      houses::[Point]} deriving (Eq)
 
   generateMap :: [Int] -> [Int] -> [Point] -> MapType
   generateMap rows cols houses = mapa where
@@ -95,18 +95,19 @@ module Board where
 
   countSthInRow :: Board -> Point -> FieldType -> Int
   countSthInRow board (colIdx,rowIdx) filed
-    | colIdx < length (m !! 0 ) = val + countSthInRow board (colIdx+1,rowIdx) filed
+    | colIdx < length c = val + countSthInRow board (colIdx+1,rowIdx) filed
     | otherwise = 0
     where
-      m = mapa board
+      c = cols board
       val | getFieldTypeAt board (colIdx,rowIdx) == filed = 1
           | otherwise = 0
 
   countSthInCol :: Board -> Point -> FieldType -> Int
   countSthInCol board (colIdx,rowIdx) field
-    | rowIdx < length (rows board) = val + countSthInCol board (colIdx,rowIdx+1) field
+    | rowIdx < length r = val + countSthInCol board (colIdx,rowIdx+1) field
     | otherwise = 0
     where
+      r = rows board
       val | getFieldTypeAt board (colIdx,rowIdx) == field = 1
           | otherwise = 0
 

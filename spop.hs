@@ -26,20 +26,23 @@ module Spop where
         putStrLn myData
 
         let fileLine = lines myData
-        let rows = read (fileLine !! 0) :: [Int]
-        let cols = read (fileLine !! 1) :: [Int]
-        let houses = read (fileLine !! 2) :: [(Int, Int)]
+        let row = read (fileLine !! 0) :: [Int]
+        let col = read (fileLine !! 1) :: [Int]
+        let house = read (fileLine !! 2) :: [(Int, Int)]
 
-        let map = generateMap rows cols houses
-        let board = Board map rows cols houses
+        let map = generateMap row col house
+        let board = Board map row col house
         putStrLn "Wczytana plansza:"
         drawBoard board
 
         putStrLn "Rozwiazuje zadanie:"
         let solvedBoard = solve board
 
-        putStrLn "Rozwiazana plansza:"
+        putStrLn "DEBUG: Rozwiazana plansza:"
         drawBoard solvedBoard
+
+        putStrLn "Rozwiazana plansza:"
+        drawBoard (Board (mapa solvedBoard) (rows board) (cols board) (houses solvedBoard))
 
         -- save output
       else do
