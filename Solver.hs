@@ -53,7 +53,7 @@ module Solver where
                              error_board = b { mapa = [[]] }
 
   findSolutionImpl' :: Board -> Int -> Int -> Board                        
-  findSolutionImpl' b n i | i == 6 = b
+  findSolutionImpl' b n i | i == 13 = b
                           | isBoardWithError bC = result_mark
                           | isBoardComplete bC  = bC
                           | otherwise           = if (mapa bC') == mapa (error_board)

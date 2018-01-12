@@ -104,7 +104,7 @@ module Board where
 
   countSthInCol :: Board -> Point -> FieldType -> Int
   countSthInCol board (colIdx,rowIdx) field
-    | rowIdx < length m = val + countSthInCol board (colIdx,rowIdx+1) field
+    | rowIdx + 1< length m = val + countSthInCol board (colIdx,rowIdx+1) field
     | otherwise = 0
     where
       m = mapa board
@@ -131,5 +131,4 @@ module Board where
                            | otherwise = (countSthInCol board (n, 0) Gas) > ((cols board) !! n) || areColsWithError board (n+1)
 
   isBoardWithError :: Board -> Bool
-  isBoardWithError board = (areRowsWithError board 0) 
-  -- || (areColsWithError board 0)
+  isBoardWithError board = (areRowsWithError board 0) || (areColsWithError board 0)
