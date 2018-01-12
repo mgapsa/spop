@@ -104,28 +104,27 @@ module Board where
 
   countSthInCol :: Board -> Point -> FieldType -> Int
   countSthInCol board (colIdx,rowIdx) field
-    | rowIdx + 1< length m = val + countSthInCol board (colIdx,rowIdx+1) field
+    | rowIdx < length (rows board) = val + countSthInCol board (colIdx,rowIdx+1) field
     | otherwise = 0
     where
-      m = mapa board
       val | getFieldTypeAt board (colIdx,rowIdx) == field = 1
           | otherwise = 0
 
   areRowsComplete :: Board -> Int -> Bool
   areRowsComplete board n | n == length(rows board) = True
                           | otherwise = (countSthInRow board (0, n) Gas) == ((rows board) !! n) && areRowsComplete board (n+1)
-  
+
   areColsComplete :: Board -> Int -> Bool
   areColsComplete board n | n == length(cols board) = True
                           | otherwise = (countSthInCol board (n, 0) Gas) == ((cols board) !! n) && areColsComplete board (n+1)
-  
+
   isBoardComplete :: Board -> Bool
   isBoardComplete board = (areRowsComplete board 0) && (areColsComplete board 0)
 
   areRowsWithError :: Board -> Int -> Bool
   areRowsWithError board n | n == length(rows board) = False
                            | otherwise = (countSthInRow board (0, n) Gas) > ((rows board) !! n) || areRowsWithError board (n+1)
-  
+
   areColsWithError :: Board -> Int -> Bool
   areColsWithError board n | n == length(cols board) = False
                            | otherwise = (countSthInCol board (n, 0) Gas) > ((cols board) !! n) || areColsWithError board (n+1)
