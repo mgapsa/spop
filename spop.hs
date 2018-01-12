@@ -33,13 +33,13 @@ module Spop where
         let board = Board rows cols houses
         let map = getMap board
         putStrLn "Wczytana plansza:"
-        drawMap map
+        drawMap map board
 
         putStrLn "Rozwiazuje zadanie:"
         let solvedMap = solve map board
 
         putStrLn "Rozwiazana plansza:"
-        drawMap solvedMap
+        drawMap solvedMap board
 
         -- save output
       else do

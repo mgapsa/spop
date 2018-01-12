@@ -3,9 +3,14 @@ module Solver where
 
   solve :: Map -> Board -> Map
   solve map (Board rows cols houses) = solvedMap where
-    mapZeros = filterEmptyRowsColumns map (0, 0) rows cols
-    mapDistant = filterDistantFields mapZeros (0,0) rows cols
-    solvedMap = solveImpl mapDistant (0,0) rows cols
+    map1 = filterDistantFields map (0,0) rows cols
+    updatedMap = runHeuristics map1 rows cols houses
+    solvedMap = updatedMap
+
+  runHeuristics :: Map -> [Int] -> [Int] -> [Point] -> Map
+  runHeuristics map0 rows cols houses = finalMap where
+    map1 = filterEmptyRowsColumns map0 (0,0) rows cols
+    finalMap = map1
 
   solveImpl :: Map -> Point -> [Int] -> [Int] -> Map
   solveImpl map (c , r) rows cols
