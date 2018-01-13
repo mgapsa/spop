@@ -15,7 +15,7 @@ module Spop where
     putStrLn "Podaj nazwę pliku wejściowego z łamigłówką:"
     -- TODO uncomment
     -- fileName <- getLine
-    let fileName = "q1.txt"
+    let fileName = "q2.txt"
     putStrLn "DEBUG: Nazwa pliku zaladowana automatycznie"
     fileOK <- doesFileExist fileName
 

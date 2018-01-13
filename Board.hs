@@ -38,12 +38,12 @@ module Board where
 
   getFieldTypeAt :: Board -> Point -> FieldType
   getFieldTypeAt board (colIdx, rowIdx)
-    | rowIdx < 0 || rowIdx >= rowSize || colIdx < 0 || colIdx >= colSize = None
+    | rowIdx < 0 || rowIdx >= length r || colIdx < 0 || colIdx >= length c = None
     | otherwise = (m !! rowIdx) !! colIdx
     where
       m = mapa board
-      rowSize = length m
-      colSize = length (m !! 0)
+      r = rows board
+      c = cols board
 
   putFieldAt :: Board -> Point -> FieldType -> Board
   putFieldAt board (dstColIdx,dstRowIdx) field = updatedBoard where
