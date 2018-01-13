@@ -8,7 +8,9 @@ module Board where
   data Board = Board {mapa::MapType,
                       rows::[Int],
                       cols::[Int],
-                      houses::[Point]} deriving (Eq)
+                      houses::[Point],
+                      rowsBase::[Int],
+                      colsBase::[Int]} deriving (Eq)
 
   generateMap :: [Int] -> [Int] -> [Point] -> MapType
   generateMap rows cols houses = mapa where
@@ -46,12 +48,50 @@ module Board where
       c = cols board
 
   putFieldAt :: Board -> Point -> FieldType -> Board
-  putFieldAt board (dstColIdx,dstRowIdx) field = updatedBoard where
-    updatedBoard = (Board m r c h)
-    m = setMap (mapa board) (dstColIdx,dstRowIdx) field r c
-    r = rows board
-    c = cols board
-    h = houses board
+  putFieldAt board (dstColIdx,dstRowIdx) field
+    | field == Gas = finalBoard
+    | otherwise = updatedBoard
+    where
+      finalBoard = filterGasTankProximity updatedBoard (dstColIdx,dstRowIdx)
+      updatedBoard = board {mapa = m, rows = r, cols = c}
+      m = setMap (mapa board) (dstColIdx,dstRowIdx) field r c
+      r = if field == Gas && getFieldTypeAt board (dstColIdx,dstRowIdx) /= Gas
+          then decrementElementInList (rows board) dstRowIdx
+          else rows board
+      c = if field == Gas && getFieldTypeAt board (dstColIdx,dstRowIdx) /= Gas
+          then decrementElementInList (cols board) dstColIdx
+          else cols board
+      h = houses board
+
+  decrementElementInList :: [Int] -> Int -> [Int]
+  decrementElementInList [] _ = []
+  decrementElementInList (x:xs) idx
+    | idx > 0 = x : decrementElementInList xs (idx-1)
+    | otherwise = (x-1) : xs
+
+  filterGasTankProximity :: Board -> Point -> Board
+  filterGasTankProximity board (colIdx,rowIdx) = finalBoard where
+    boardNW = filterGasTankProximityImpl board (colIdx-1,rowIdx-1)
+    boardNX = filterGasTankProximityImpl boardNW (colIdx,rowIdx-1)
+    boardNE = filterGasTankProximityImpl boardNX (colIdx+1,rowIdx-1)
+    boardEX = filterGasTankProximityImpl boardNE (colIdx+1,rowIdx)
+    boardSE = filterGasTankProximityImpl boardEX (colIdx+1,rowIdx+1)
+    boardSX = filterGasTankProximityImpl boardSE (colIdx,rowIdx+1)
+    boardSW = filterGasTankProximityImpl boardSX (colIdx-1,rowIdx+1)
+    boardWX = filterGasTankProximityImpl boardSW (colIdx-1,rowIdx)
+    finalBoard = boardWX
+
+  filterGasTankProximityImpl :: Board -> Point -> Board
+  filterGasTankProximityImpl board (colIdx,rowIdx)
+    | colIdx >= 0 && rowIdx >= 0 && colIdx < length c && rowIdx < length r = finalBoard
+    | otherwise = board
+    where
+      c = cols board
+      r = rows board
+      isNone = (getFieldTypeAt board (colIdx,rowIdx) == None)
+      finalBoard = if isNone
+                   then putFieldAt board (colIdx,rowIdx) Empty
+                   else board
 
   setMap :: MapType -> Point -> FieldType -> [Int] -> [Int] -> MapType
   setMap mapa (dstColIdx,dstRowIdx) field rows cols = newBoard where
@@ -113,22 +153,22 @@ module Board where
 
   areRowsComplete :: Board -> Int -> Bool
   areRowsComplete board n | n == length(rows board) = True
-                          | otherwise = (countSthInRow board (0, n) Gas) == ((rows board) !! n) && areRowsComplete board (n+1)
+                          | otherwise = ((rows board) !! n) == 0 && areRowsComplete board (n+1)
 
   areColsComplete :: Board -> Int -> Bool
   areColsComplete board n | n == length(cols board) = True
-                          | otherwise = (countSthInCol board (n, 0) Gas) == ((cols board) !! n) && areColsComplete board (n+1)
+                          | otherwise = ((cols board) !! n) == 0 && areColsComplete board (n+1)
 
   isBoardComplete :: Board -> Bool
   isBoardComplete board = (areRowsComplete board 0) && (areColsComplete board 0)
 
   areRowsWithError :: Board -> Int -> Bool
   areRowsWithError board n | n == length(rows board) = False
-                           | otherwise = (countSthInRow board (0, n) Gas) > ((rows board) !! n) || areRowsWithError board (n+1)
+                           | otherwise = ((countSthInRow board (0, n) Gas) > ((rowsBase board) !! n)) || areRowsWithError board (n+1)
 
   areColsWithError :: Board -> Int -> Bool
   areColsWithError board n | n == length(cols board) = False
-                           | otherwise = (countSthInCol board (n, 0) Gas) > ((cols board) !! n) || areColsWithError board (n+1)
+                           | otherwise = (countSthInCol board (n, 0) Gas) > ((colsBase board) !! n) || areColsWithError board (n+1)
 
   isBoardWithError :: Board -> Bool
   isBoardWithError board = (areRowsWithError board 0) || (areColsWithError board 0)
