@@ -123,10 +123,10 @@ module Board where
 
   -- Zwraca współrzędne pola o podanym indeksie linowym
   n2xy :: Board -> Int -> (Int, Int)
-  n2xy b n = ((mod n (length(cols b))), (div n (length(rows b))))
+  n2xy b n = ((mod n (length(rows b))), (div n (length(cols b))))
   -- Zwraca indeks linowy pola o podanych współrzędnych
   xy2n :: Board -> (Int, Int) -> Int
-  xy2n b (x, y) = y * length(cols b) + x
+  xy2n b (x, y) = y * length(rows b) + x
 
 
   isEmptyAt :: Board -> Point -> Bool

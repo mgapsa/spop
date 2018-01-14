@@ -14,8 +14,8 @@ module Spop where
   askForFile = do
     putStrLn "Podaj nazwę pliku wejściowego z łamigłówką:"
     -- TODO uncomment
-    -- fileName <- getLine
-    let fileName = "q2.txt"
+    fileName <- getLine
+    -- let fileName = "q2.txt"
     putStrLn "DEBUG: Nazwa pliku zaladowana automatycznie"
     fileOK <- doesFileExist fileName
 
@@ -44,6 +44,12 @@ module Spop where
         putStrLn "Rozwiazana plansza:"
         let solvedBoardFinal = solvedBoard {rows = (rowsBase solvedBoard), cols = (colsBase solvedBoard)}
         drawBoard solvedBoardFinal
+
+        putStr "Podaj nazwę pliku wyjściowego: "
+        output <- getLine
+        writeBoardToFile solvedBoardFinal output
+        putStrLn ("Rozwiazanie zapisane do " ++ output)
+
 
         -- save output
       else do

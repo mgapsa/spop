@@ -33,3 +33,15 @@ module BoardGUI where
   printElements [] = return ()
   printElements (x:xs) = do putStr [chr (x+48)]
                             printElements xs
+
+
+  writeBoardToFile :: Board -> FilePath -> IO ()
+  writeBoardToFile b file = do writeFile file (writeMapToFile (mapa b))
+
+  writeMapToFile :: MapType -> [Char]
+  writeMapToFile [] = ""
+  writeMapToFile (row:rows) = writeMapRowToFile row ++ "\n" ++ (writeMapToFile rows)
+
+  writeMapRowToFile :: [FieldType] -> [Char]
+  writeMapRowToFile [] = ""
+  writeMapRowToFile (e:elem) = fieldTypeToString e ++ writeMapRowToFile elem
