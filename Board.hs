@@ -151,6 +151,13 @@ module Board where
       val | getFieldTypeAt board (colIdx,rowIdx) == field = 1
           | otherwise = 0
 
+  countSthInList :: [FieldType] -> FieldType -> Int
+  countSthInList [] _ = 0
+  countSthInList (x:xs) field = val + countSthInList xs field where
+    val = if x == field
+          then 1
+          else 0
+
   areRowsComplete :: Board -> Int -> Bool
   areRowsComplete board n | n == length(rows board) = True
                           | otherwise = ((rows board) !! n) == 0 && areRowsComplete board (n+1)
@@ -160,7 +167,34 @@ module Board where
                           | otherwise = ((cols board) !! n) == 0 && areColsComplete board (n+1)
 
   isBoardComplete :: Board -> Bool
-  isBoardComplete board = (areRowsComplete board 0) && (areColsComplete board 0)
+  isBoardComplete board = (areRowsComplete board 0) && (areColsComplete board 0) && (isHouseWithGas board (0,0))
+
+  isHouseWithGas :: Board -> Point -> Bool
+  isHouseWithGas board (colIdx,rowIdx)
+    | rowIdx < length r && colIdx < length c = finalStatus && isHouseWithGas board (colIdx+1,rowIdx)
+    | rowIdx < length r = isHouseWithGas board (0,rowIdx+1)
+    | otherwise = True
+    where
+      r = rows board
+      c = cols board
+      finalStatus = if getFieldTypeAt board (colIdx,rowIdx) == House
+                    then isHouseWithGasImpl board (colIdx,rowIdx)
+                    else True
+
+  isHouseWithGasImpl :: Board -> Point -> Bool
+  isHouseWithGasImpl board (colIdx,rowIdx) = finalStatus where
+    fieldNW = getFieldTypeAt board (colIdx-1,rowIdx-1)
+    fieldNX = getFieldTypeAt board (colIdx,rowIdx-1)
+    fieldNE = getFieldTypeAt board (colIdx+1,rowIdx-1)
+    fieldEX = getFieldTypeAt board (colIdx+1,rowIdx)
+    fieldSE = getFieldTypeAt board (colIdx+1,rowIdx+1)
+    fieldSX = getFieldTypeAt board (colIdx,rowIdx+1)
+    fieldSW = getFieldTypeAt board (colIdx-1,rowIdx+1)
+    fieldWX = getFieldTypeAt board (colIdx-1,rowIdx)
+    neightbours = [fieldNW, fieldNX, fieldNE, fieldEX, fieldSE, fieldSX, fieldSW, fieldWX]
+    finalStatus = if countSthInList neightbours Gas > 0
+                  then True
+                  else False
 
   areRowsWithError :: Board -> Int -> Bool
   areRowsWithError board n | n == length(rows board) = False
