@@ -120,13 +120,13 @@ module Board where
                 | isEmptyAt b (n2xy b (n+1))   = n2xy b (n+1)
                 | otherwise                    = nextEmpty b (n+1)
 
-
+  --rows to jest to w pionie
   -- Zwraca współrzędne pola o podanym indeksie linowym
   n2xy :: Board -> Int -> (Int, Int)
-  n2xy b n = ((mod n (length(rows b))), (div n (length(cols b))))
+  n2xy b n = ((mod n (length(cols b))), (div n (length(cols b))))
   -- Zwraca indeks linowy pola o podanych współrzędnych
   xy2n :: Board -> (Int, Int) -> Int
-  xy2n b (x, y) = y * length(rows b) + x
+  xy2n b (x, y) = y * length(cols b) + x
 
 
   isEmptyAt :: Board -> Point -> Bool
