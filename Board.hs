@@ -172,3 +172,6 @@ module Board where
 
   isBoardWithError :: Board -> Bool
   isBoardWithError board = (areRowsWithError board 0) || (areColsWithError board 0)
+
+  areThereAnyHousesWithoutGas :: Board -> Int -> Bool
+

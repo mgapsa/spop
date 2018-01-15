@@ -59,7 +59,7 @@ module Solver where
 
   findSolutionImpl' :: Board -> Int -> Int -> Board
   findSolutionImpl' b n counter
-    | counter == 40        = b
+    | counter == 13        = b
     | isBoardWithError bC = result_mark
     | isBoardComplete bC  = bC
     | otherwise           = if (mapa bC') == mapa (error_board)
@@ -67,9 +67,9 @@ module Solver where
                             else bC'
     where
       bC = runHeuristics (putFieldAt b nextPoint Gas)
-      bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber (counter-1)) else bC -- error_board
+      bC' = if nextPointCExists then (findSolutionImpl' bC nextPointAsNumber (counter+1)) else error_board
       bM = runHeuristics (putFieldAt b nextPoint None)
-      bM' = if nextPointMExists then (findSolutionImpl' bM nextPointAsNumber (counter-1)) else error_board
+      bM' = if nextPointMExists then (findSolutionImpl' bM nextPointAsNumber (counter+1)) else error_board
       nextPoint = nextEmpty b n
       nextPointAsNumber = xy2n b nextPoint
       nextPointCExists = nextEmpty bC nextPointAsNumber /= (-1,-1)
