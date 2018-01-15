@@ -183,15 +183,11 @@ module Board where
 
   isHouseWithGasImpl :: Board -> Point -> Bool
   isHouseWithGasImpl board (colIdx,rowIdx) = finalStatus where
-    fieldNW = getFieldTypeAt board (colIdx-1,rowIdx-1)
-    fieldNX = getFieldTypeAt board (colIdx,rowIdx-1)
-    fieldNE = getFieldTypeAt board (colIdx+1,rowIdx-1)
-    fieldEX = getFieldTypeAt board (colIdx+1,rowIdx)
-    fieldSE = getFieldTypeAt board (colIdx+1,rowIdx+1)
-    fieldSX = getFieldTypeAt board (colIdx,rowIdx+1)
-    fieldSW = getFieldTypeAt board (colIdx-1,rowIdx+1)
-    fieldWX = getFieldTypeAt board (colIdx-1,rowIdx)
-    neightbours = [fieldNW, fieldNX, fieldNE, fieldEX, fieldSE, fieldSX, fieldSW, fieldWX]
+    fieldN = getFieldTypeAt board (colIdx,rowIdx-1)
+    fieldE = getFieldTypeAt board (colIdx+1,rowIdx)
+    fieldS = getFieldTypeAt board (colIdx,rowIdx+1)
+    fieldW = getFieldTypeAt board (colIdx-1,rowIdx)
+    neightbours = [fieldN, fieldE, fieldS, fieldW]
     finalStatus = if countSthInList neightbours Gas > 0
                   then True
                   else False
