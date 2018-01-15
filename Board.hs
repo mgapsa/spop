@@ -198,8 +198,8 @@ module Board where
 
   canHouseHaveGas :: Board -> Point -> Bool
   canHouseHaveGas board (colIdx,rowIdx)
-    | rowIdx < length r && colIdx < length c = finalStatus && isHouseWithGas board (colIdx+1,rowIdx)
-    | rowIdx < length r = isHouseWithGas board (0,rowIdx+1)
+    | rowIdx < length r && colIdx < length c = finalStatus && canHouseHaveGas board (colIdx+1,rowIdx)
+    | rowIdx < length r = canHouseHaveGas board (0,rowIdx+1)
     | otherwise = True
     where
       r = rows board
@@ -228,5 +228,5 @@ module Board where
                            | otherwise = (countSthInCol board (n, 0) Gas) > ((colsBase board) !! n) || areColsWithError board (n+1)
 
   isBoardWithError :: Board -> Bool
-  isBoardWithError board = (areRowsWithError board 0) || (areColsWithError board 0) -- || not (canHouseHaveGas board (0,0))
+  isBoardWithError board = (areRowsWithError board 0) || (areColsWithError board 0) || not (canHouseHaveGas board (0,0))
 

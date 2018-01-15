@@ -59,7 +59,7 @@ module Solver where
 
   findSolutionImpl' :: Board -> Int -> Int -> Board
   findSolutionImpl' b n counter
-    | counter == 13        = b
+    | counter == 0        = b
     | isBoardWithError bC = result_mark
     | isBoardComplete bC  = bC
     | otherwise           = if (mapa bC') == mapa (error_board)
