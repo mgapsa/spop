@@ -37,7 +37,8 @@ module Solver where
                     where sb = runHeuristics b
                           sn = nextEmpty sb (-1)
   findSolutionImpl :: Board -> Int -> Board
-  findSolutionImpl b n | isBoardWithError bC = result_mark
+  findSolutionImpl b n | n < -1 = b
+                       | isBoardWithError bC = result_mark
                        | isBoardComplete bC  = bC
                        | otherwise           = if (mapa bC') == mapa (error_board)
                                                then result_mark
@@ -59,7 +60,7 @@ module Solver where
 
   findSolutionImpl' :: Board -> Int -> Int -> Board
   findSolutionImpl' b n counter
-    | counter == 14        = b
+    | counter >= 14       = b
     | isBoardWithError bC = result_mark
     | isBoardComplete bC  = bC
     | otherwise           = if (mapa bC') == mapa (error_board)
