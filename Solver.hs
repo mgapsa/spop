@@ -1,6 +1,7 @@
 module Solver where
   import Board
 
+  -- wywolanie solvera, plansze rozwiazana zgodnie z zasadami
   solve :: Board -> Board
   solve board = solvedBoard where
     board1 = filterDistantFields board (0,0)
@@ -8,6 +9,8 @@ module Solver where
     board3 = findSolution board2
     solvedBoard = board3
 
+  -- oznacza pola ktore sa daleko od domow
+  -- jako pola na ktorych nigdy nie bedzie stal zbiornik z gazem
   filterDistantFields :: Board -> Point -> Board
   filterDistantFields board (colIdx,rowIdx)
     | rowIdx < length r && colIdx < length c = finalBoard
@@ -26,10 +29,6 @@ module Solver where
             || getFieldTypeAt board (colIdx+1,rowIdx) == House
             || getFieldTypeAt board (colIdx,rowIdx+1) == House) == False = Empty
         | otherwise = (m !! rowIdx) !! colIdx
-
-  -- --dodac sprawdzanie w jednej linii i jakies returny jak slepy zaulek
-  -- putGasNextToHouse :: MapType -> Point -> [Int] -> [Int] -> MapType
-  -- putGasNextToHouse map (c , r) rows cols = putFieldAt map (c , r) Gas
 
   -- Przeszukuje wgłąb przestrzeń rozwiązań wstawiając w wolne pola zbiorniki
   findSolution :: Board -> Board
@@ -83,7 +82,8 @@ module Solver where
       error_board = b { mapa = [[]] }
       error_1 = b { mapa = [[Empty,Gas,Gas,Gas]] }
 
-
+  -- aplikuje zbior zasad pozwalajacych dedukowac
+  -- pozycje zbiornikow z gazem oraz pol ktore pozostana puste
   runHeuristics :: Board -> Board
   runHeuristics board = finalBoard where
     board1 = filterEmptyRowsColumns board (0,0)
@@ -91,6 +91,8 @@ module Solver where
     finalBoard = if board == board2 then board2
                  else runHeuristics board2
 
+  -- heurystyka: zaznacza pola w wierszu lub kolumnie w ktorej stoja juz
+  -- wszystkie wymagane zbiorniki z gazem jako pola puste
   filterEmptyRowsColumns :: Board -> Point -> Board
   filterEmptyRowsColumns board (colIdx, rowIdx)
     | rowIdx < length r && colIdx < length c = finalBoard
@@ -108,6 +110,8 @@ module Solver where
         | ((r !! rowIdx) == 0 || (c !! colIdx) == 0) = Empty
         | otherwise = (m !! rowIdx) !! colIdx
 
+  -- heurystyka: stawia zbiorniki z gazem w wierszach lub kolumnach
+  -- w ktorych liczba wolnych miejsc rowna sie liczbie wymaganych zbiornikow
   fillMatchingFields :: Board -> Point -> Board
   fillMatchingFields board (colIdx,rowIdx)
     | rowIdx < length r = finalRowBoard
@@ -127,6 +131,7 @@ module Solver where
                         then pushGasInCol board (colIdx,0)
                         else board
 
+  -- implementuje fillMatchingFields dla wiersza
   pushGasInRow :: Board -> Point -> Board
   pushGasInRow board (colIdx,rowIdx)
     | colIdx < length c = finalBoard
@@ -139,6 +144,7 @@ module Solver where
                      else board
       boardGas = putFieldAt board (colIdx,rowIdx) Gas
 
+  -- implementuje fillMatchingFields dla kolumny
   pushGasInCol :: Board -> Point -> Board
   pushGasInCol board (colIdx,rowIdx)
     | rowIdx < length r = finalBoard
